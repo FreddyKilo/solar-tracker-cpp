@@ -11,7 +11,6 @@ public:
     LED(int pin_number);
 
     void set_state(int state);
-
     void blink_once(int delay_seconds);
 };
 
