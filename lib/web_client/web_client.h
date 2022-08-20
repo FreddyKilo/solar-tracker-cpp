@@ -8,15 +8,15 @@
 
 class WebClient
 {
-private:
-    String m_ip_geolocation_domain;
-
-    DynamicJsonDocument _get(String url);
-
 public:
     WebClient(void);
 
     DynamicJsonDocument get_astronomy_data();
+
+private:
+    String m_ip_geolocation_domain;
+
+    DynamicJsonDocument _get(String url);
 };
 
 #endif
