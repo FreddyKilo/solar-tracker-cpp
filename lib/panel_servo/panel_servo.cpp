@@ -13,6 +13,8 @@ void PanelServo::set_target(int target, int speed)
     if (speed > 100) speed = 100;
     if (speed < 0) speed = 0;
 
+    Serial.println("setting servo on pin " + String(_pinout) + " to " + String(target) + " degrees");
+
     while (_angle != target)
     {
         int diff = target - _angle;

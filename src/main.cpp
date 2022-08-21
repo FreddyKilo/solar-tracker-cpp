@@ -1,6 +1,4 @@
 #include <Arduino.h>
-#include <ESP8266WiFi.h>
-#include <ArduinoJson.h>
 
 #include "led.h"
 #include "helpers.h"
@@ -17,6 +15,8 @@ void setup()
 
 void loop()
 {
+  led.blink_once(1000);
+  led.blink_once(1000);
+
   controller.run();
-  led.blink_once(500);
 }

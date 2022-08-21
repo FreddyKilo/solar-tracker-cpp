@@ -9,14 +9,13 @@ public:
     void set_target(int angle, int speed);
     int get_angle();
     void set_speed(int speed);
+    int map_azimuth_angle(int sun_azimuth);
 
 private:
     int _pinout;
     int _servo_id;
     float _angle;
     int _speed;
-
-    int map_azimuth_angle(int sun_azimuth);
 };
 
 #endif

@@ -8,11 +8,13 @@ LED::LED(int pin_number)
 
 void LED::blink_once(int delay_seconds)
 {
+    int ms_on = 15;
     pinMode(m_pin_number, OUTPUT);
+
     digitalWrite(LED_BUILTIN, LOW);
-    delay(delay_seconds);
+    delay(ms_on);
     digitalWrite(LED_BUILTIN, HIGH);
-    delay(delay_seconds);
+    delay(delay_seconds - ms_on);
 }
 
 void LED::set_state(int state)

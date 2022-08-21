@@ -10,6 +10,9 @@ namespace constants {
 
     constexpr int DEFAULT_AZIMUTH_POSITION = 180;
     constexpr int DEFAULT_ALTITUDE_POSITION = 0;
+
+    constexpr auto LOG_NAME_LIGHT_SLEEP = "tracker-v2-light-sleep";
+    constexpr auto LOG_NAME_DEEP_SLEEP = "tracker-v2-deep-sleep";
 }
 
 #endif
