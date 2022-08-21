@@ -6,14 +6,17 @@ class PanelServo
 public:
     PanelServo(int pinout, int min_microseconds, int max_microseconds);
 
-    void set_target(int angle);
+    void set_target(int angle, int speed);
     int get_angle();
     void set_speed(int speed);
 
 private:
+    int _pinout;
     int _servo_id;
     float _angle;
     int _speed;
+
+    int map_azimuth_angle(int sun_azimuth);
 };
 
 #endif

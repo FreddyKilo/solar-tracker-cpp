@@ -3,14 +3,34 @@
 
 PanelServo::PanelServo(int pinout, int min_microseconds, int max_microseconds)
 {
+    _pinout = pinout;
     _servo_id = ISR_Servo.setupServo(pinout, min_microseconds, max_microseconds);
 }
 
-void PanelServo::set_target(int angle)
+void PanelServo::set_target(int target, int speed)
 {
-    ISR_Servo.setPosition(_servo_id, angle);
+    if (_pinout == D5) target = map_azimuth_angle(target);
+    if (speed > 100) speed = 100;
+    if (speed < 0) speed = 0;
+
+    while (_angle != target)
+    {
+        int diff = target - _angle;
+        int increment = diff / abs(diff);
+
+        ISR_Servo.setPosition(_servo_id, _angle + increment);
+
+        _angle += increment;
+        delay(200 - speed * 2);
+    }
 }
 
-int PanelServo::get_angle(){
+int PanelServo::get_angle()
+{
     return ISR_Servo.getPosition(_servo_id);
+}
+
+int PanelServo::map_azimuth_angle(int sun_azimuth)
+{
+  return 270 - sun_azimuth;
 }
