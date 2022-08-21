@@ -2,6 +2,7 @@
 #include <unity.h>
 #include <string>
 #include "helpers.h"
+#include "panel_servo.h"
 
 void setUp(void) {}
 
@@ -37,12 +38,30 @@ void test_seconds_to_sunrise()
     TEST_ASSERT_EQUAL(expected, to_sunrise);
 }
 
+void test_map_azimuth_angle()
+{
+    // the 0 degree postion of the servo used for azimuth is at the 3 o'clock position
+    // and 180 is counter clockwise to 9 o'clock
+    
+    int sunrise_azimuth = 90; // due east
+    int sunset_azimuth = 270; // due west
+
+    PanelServo servo = PanelServo(0, 0, 0);
+
+    int angle = servo.map_azimuth_angle(sunrise_azimuth);
+    TEST_ASSERT_EQUAL(180, angle);
+
+    angle = servo.map_azimuth_angle(sunset_azimuth);
+    TEST_ASSERT_EQUAL(0, angle);
+}
+
 void setup()
 {
     UNITY_BEGIN();
 
     RUN_TEST(test_time_to_seconds);
     RUN_TEST(test_seconds_to_sunrise);
+    RUN_TEST(test_map_azimuth_angle);
     
     UNITY_END();
 }
