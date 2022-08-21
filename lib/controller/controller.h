@@ -10,18 +10,18 @@ public:
     Controller(void);
 
     void run(void);
+    void set_default_position(void);
+    void calibrate_servos(void);
 
 private:
     WebClient _web_client;
     float _sun_azimuth;
     float _sun_altitude;
-    PanelServo _x_servo;
-    PanelServo _y_servo;
-
+    PanelServo _azimuth_servo;
+    PanelServo _altitude_servo;
     int _tracking_delay;
 
-    void get_astronomy_data();
-    void position_servos_default();
+    void get_astronomy_data(void);
 };
 
 #endif
