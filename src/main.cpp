@@ -4,19 +4,18 @@
 #include "helpers.h"
 #include "controller.h"
 
-LED led = LED(LED_BUILTIN);
+LED led(LED_BUILTIN);
 Controller controller;
 
 void setup()
 {
   Serial.begin(9600);
+  controller.init_display();
   connect_to_wifi();
 }
 
 void loop()
 {
-  led.blink_once(1000);
-  led.blink_once(1000);
-
+  led.blink_once(3000);
   controller.run();
 }

@@ -2,6 +2,9 @@
 #define CONTROLLER
 
 #include <ArduinoJson.h>
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
 
 #include "web_client.h"
 #include "panel_servo.h"
@@ -14,6 +17,7 @@ public:
     void run(void);
     void set_default_position(void);
     void calibrate_servos(void);
+    void init_display(void);
 
 private:
     WebClient _web_client;
@@ -24,8 +28,11 @@ private:
     PanelServo _altitude_servo;
     DynamicJsonDocument _log_message;
     int _tracking_delay;
+    Adafruit_SSD1306 _display;
 
     void get_astronomy_data(void);
+    void display_header(void);
+    void display_positions(void);
 };
 
 #endif

@@ -12,11 +12,11 @@ void test_time_to_seconds()
 {
     std::string time = "01:00";
     int seconds = time_to_seconds(time);
-    TEST_ASSERT_EQUAL(60, seconds);
+    TEST_ASSERT_EQUAL(3600, seconds);
 
     time = "01:30:54.345";
     seconds = time_to_seconds(time);
-    TEST_ASSERT_EQUAL(90, seconds);
+    TEST_ASSERT_EQUAL(5400, seconds);
 }
 
 void test_seconds_to_sunrise()

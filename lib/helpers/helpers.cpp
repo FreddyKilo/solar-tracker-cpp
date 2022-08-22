@@ -29,7 +29,7 @@ int time_to_seconds(std::string time)
   int hours = stoi(time.substr(0, 2));
   int minutes = stoi(time.substr(3, 2));
 
-  return hours * 60 + minutes;
+  return (hours * 60 + minutes) * 60;
 }
 
 int seconds_to_sunrise(int current_time, int sunrise)
