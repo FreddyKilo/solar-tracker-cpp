@@ -56,13 +56,13 @@ void Controller::run()
     if (_sun_altitude > 0)
     {
         _display.display_status("Setting azimuth", "servo", "");
-        _azimuth_servo.set_target(_sun_azimuth, 50);
+        _azimuth_servo.set_target(_sun_azimuth, 80);
         _display.display_status("Setting altitude", "servo", "");
-        _altitude_servo.set_target(_sun_altitude, 50);
+        _altitude_servo.set_target(_sun_altitude, 80);
 
         _web_client.log_info(LOG_NAME_LIGHT_SLEEP, _log_message);
         Serial.println("light sleeping for " + String(_tracking_delay / DELAY_MINUTE) + " minutes");
-        // display_positions();
+        _display.display_current_positions(_sun_azimuth, _sun_altitude);
         delay(_tracking_delay);
     }
     else // after sunset
@@ -75,9 +75,8 @@ void Controller::run()
 
         _web_client.log_info(LOG_NAME_DEEP_SLEEP, _log_message);
         Serial.println("deep sleeping for " + String(delay_time / 60) + " minutes");
-        // display_positions();
-        // _display.dim(true);
         _display.display_status("", "GOODNIGHT :)", "");
+        _display.sleep();
         ESP.deepSleep(delay_time * DEEP_SLEEP_SECOND);
     }
 }

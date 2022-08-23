@@ -50,33 +50,45 @@ void Display::display_status(String line_1, String line_2, String line_3)
     _display.setCursor(cursor_x_3, 44);
     _display.println(line_3);
     _display.display();
+    delay(1000);
 }
 
 void Display::display_current_positions(float azimuth, float altitude)
 {
-    String azimuth_key = "X:  ";
-    String altitude_key = "Y:  ";
+    String azimuth_key = "X: ";
+    String altitude_key = "Y: ";
 
     if (azimuth >= 100.0)
-        azimuth_key = "X: ";
+        azimuth_key = "X:";
 
     if (altitude < 10.0)
-        altitude_key = "Y:   ";
+        altitude_key = "Y:  ";
+
+    String subtitle = "Current Position";
+    String azimuth_position = azimuth_key + String(azimuth);
+    String altitude_position = altitude_key + String(altitude);
+
+    int subtitle_x = get_cursor_start_centered(subtitle, CHAR_SIZE_1_WIDTH);
+    int azimuth_x = get_cursor_start_centered(azimuth_position, CHAR_SIZE_2_WIDTH);
+    int altitude_x = get_cursor_start_centered(altitude_position, CHAR_SIZE_2_WIDTH);
 
     _display.clearDisplay();
     set_header(DEFAULT_HEADER_LINE_1, DEFAULT_HEADER_LINE_2);
 
-    String subtitle = "Current Position";
-    int subtitle_x = get_cursor_start_centered(subtitle, CHAR_SIZE_1_WIDTH);
     _display.setCursor(subtitle_x, 20);
     _display.println(subtitle);
 
     _display.setTextSize(2);
-    _display.setCursor(9, 32);
-    _display.println(azimuth_key + String(azimuth));
-    _display.setCursor(9, 50);
-    _display.println(altitude_key + String(altitude));
+    _display.setCursor(azimuth_x, 32);
+    _display.println(azimuth_position);
+    _display.setCursor(altitude_x, 50);
+    _display.println(altitude_position);
     _display.display();
+}
+
+void Display::sleep()
+{
+    _display.clearDisplay();
 }
 
 int Display::get_cursor_start_centered(String text, int char_width)
