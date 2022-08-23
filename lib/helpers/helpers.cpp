@@ -1,28 +1,8 @@
-#include <Arduino.h>
-#include <ESP8266WiFi.h>
-
 #include "helpers.h"
-#include "secrets.h"
 #include "constants.h"
 
 using namespace std;
 using namespace constants;
-
-void connect_to_wifi()
-{  
-  Serial.print("\n\nAttempting connection");
-  WiFi.mode(WIFI_STA);
-  WiFi.begin(NETWORK_SSID, NETWORK_PASS);
-
-  while (WiFi.status() != WL_CONNECTED)
-  {
-    delay(1000);
-    Serial.print(".");
-  }
-
-  wifi_set_sleep_type(LIGHT_SLEEP_T);
-  Serial.println("Connection established!");
-}
 
 int time_to_seconds(std::string time)
 {

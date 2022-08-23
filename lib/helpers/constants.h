@@ -13,6 +13,12 @@ namespace constants {
 
     constexpr auto LOG_NAME_LIGHT_SLEEP = "tracker-v2-light-sleep";
     constexpr auto LOG_NAME_DEEP_SLEEP = "tracker-v2-deep-sleep";
+
+    constexpr int DISPLAY_PIXEL_WIDTH = 128;
+    constexpr int DISPLAY_PIXEL_HEIGHT = 64;
+    constexpr auto DEFAULT_HEADER_LINE_1 = "-- SOLAR TRACKER --";
+    constexpr auto DEFAULT_HEADER_LINE_2 = "v2.0";
+    constexpr auto STATUS_HEADER = "-- STATUS --";
 }
 
 #endif

@@ -1,7 +1,6 @@
 #include <Arduino.h>
 
 #include "led.h"
-#include "helpers.h"
 #include "controller.h"
 
 LED led(LED_BUILTIN);
@@ -10,8 +9,7 @@ Controller controller;
 void setup()
 {
   Serial.begin(9600);
-  controller.init_display();
-  connect_to_wifi();
+  controller.connect_to_wifi();
 }
 
 void loop()
