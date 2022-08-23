@@ -14,6 +14,6 @@ void setup()
 
 void loop()
 {
-  led.blink_once(3000);
+  led.blink_many(3, 100);
   controller.run();
 }

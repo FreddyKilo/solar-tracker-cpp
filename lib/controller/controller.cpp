@@ -14,7 +14,6 @@ Controller::Controller()
       _azimuth_servo(D5, 400, 2400),
       _altitude_servo(D6, 400, 2400),
       _log_message(512)
-//   _display(128, 64, &Wire, -1)
 {
     WebClient _web_client;
     _tracking_delay = 5 * DELAY_MINUTE;
@@ -101,62 +100,3 @@ void Controller::calibrate_servos()
     _azimuth_servo.set_target(180, 100);
     delay(2000);
 }
-
-// void Controller::init_display()
-// {
-//     _display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
-//     _display.clearDisplay();
-//     _display.setTextColor(WHITE);
-
-//     display_header();
-// }
-
-// void Controller::display_header()
-// {
-//     _display.setTextSize(1);
-//     _display.setCursor(6, 0);
-//     _display.println("-- SOLAR TRACKER --");
-//     _display.setCursor(51, 8);
-//     _display.println("v2.0");
-//     _display.display();
-// }
-
-// void Controller::display_status(String status)
-// {
-//     _display.clearDisplay();
-//     display_header();
-
-//     _display.setTextSize(1);
-
-//     _display.setCursor(0, 20);
-//     _display.println("       Status:");
-
-//     _display.setCursor(0, 30);
-//     _display.println(status);
-
-//     _display.display();
-// }
-
-// void Controller::display_positions()
-// {
-//     String azimuth_key = "X:  ";
-//     String altitude_key = "Y:  ";
-
-//     if (_sun_azimuth >= 100.0)
-//         azimuth_key = "X: ";
-
-//     if (_sun_altitude < 0.0)
-//         altitude_key = "Y: ";
-
-//     _display.clearDisplay();
-//     display_header();
-
-//     _display.setCursor(3, 20);
-//     _display.println("  Current Position");
-//     _display.setTextSize(2);
-//     _display.setCursor(9, 32);
-//     _display.println(azimuth_key + String(_sun_azimuth));
-//     _display.setCursor(9, 50);
-//     _display.println(altitude_key + String(_sun_altitude));
-//     _display.display();
-// }

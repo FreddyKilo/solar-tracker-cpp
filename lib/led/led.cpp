@@ -1,25 +1,34 @@
-#include <Arduino.h>
 #include "led.h"
 
 LED::LED(int pin_number)
 {
-    m_pin_number = pin_number;
+    _pin_number = pin_number;
+    pinMode(LED_BUILTIN, OUTPUT);
+    set_state(_LED_LOW);
 }
 
 void LED::blink_once(int delay_seconds)
 {
     int ms_on = 15;
-    pinMode(m_pin_number, OUTPUT);
+    pinMode(_pin_number, OUTPUT);
 
-    digitalWrite(LED_BUILTIN, LOW);
+    set_state(_LED_HIGH);
     delay(ms_on);
-    digitalWrite(LED_BUILTIN, HIGH);
+    set_state(_LED_LOW);
     delay(delay_seconds - ms_on);
+}
+
+void LED::blink_many(int count, int delay_seconds)
+{
+    while (count > 0)
+    {
+        blink_once(delay_seconds);
+        count--;
+    }
 }
 
 void LED::set_state(int state)
 {
-    m_state = state;
-    pinMode(LED_BUILTIN, OUTPUT);
-    digitalWrite(LED_BUILTIN, m_state);
+    _state = state;
+    digitalWrite(LED_BUILTIN, _state);
 }
