@@ -2,25 +2,40 @@
 
 PanelServo::PanelServo(int pinout, int min_microseconds, int max_microseconds)
 {
-    _servo.attach(pinout, min_microseconds, max_microseconds);
     _pinout = pinout;
+    _min = min_microseconds;
+    _max = max_microseconds;
 }
 
-void PanelServo::set_target(int target)
+void PanelServo::set_target(float angle, int speed)
 {
-    if (_pinout == D5) target = map_azimuth_angle(target);
+    _servo.attach(_pinout, _min, _max);
 
-    Serial.println("setting servo on pin " + String(_pinout) + " to " + String(target) + " degrees");
+    if (speed > 20)
+        speed = 20;
+    if (speed < 0)
+        speed = 0;
 
-    while (_angle != target)
+    int target = 0;
+    if (_pinout == D5)
+        target = map_azimuth_to_microsec(angle);
+    else if (_pinout == D6)
+        target = map_altitude_to_microsec(angle);
+
+    while (_microsec != target)
     {
-        int diff = target - _angle;
-        int increment = diff / abs(diff);
+        int diff = target - _microsec;
+        int increment = diff / abs(diff) * speed;
 
-        _servo.write(_angle + increment);
+        if (abs(increment) > abs(diff))
+            _microsec = target;
+        else
+            _microsec += increment;
 
-        _angle += increment;
+        _servo.writeMicroseconds(_microsec);
     }
+
+    _servo.detach();
 }
 
 int PanelServo::get_angle()
@@ -28,8 +43,12 @@ int PanelServo::get_angle()
     return _servo.read();
 }
 
-int PanelServo::map_azimuth_angle(int sun_azimuth)
+int PanelServo::map_azimuth_to_microsec(float sun_azimuth)
 {
-    if (sun_azimuth > 270) return 0;
-    return 270 - sun_azimuth;
+    return map(sun_azimuth, 60, 300, _max, _min);
+}
+
+int PanelServo::map_altitude_to_microsec(float sun_altitude)
+{
+    return map(sun_altitude, 0, 180, _min, _max);
 }

@@ -11,8 +11,8 @@ using namespace constants;
 
 Controller::Controller()
     : _astronomy_data(1024),
-      _azimuth_servo(D5, 400, 2400),
-      _altitude_servo(D6, 400, 2400),
+      _azimuth_servo(D5, AZIMUTH_SERVO_MIN_MICROSEC, AZIMUTH_SERVO_MAX_MICROSEC),
+      _altitude_servo(D6, ALTITUDE_SERVO_MIN_MICROSEC, ALTITUDE_SERVO_MAX_MICROSEC),
       _log_message(512)
 {
     WebClient _web_client;
@@ -55,13 +55,14 @@ void Controller::run()
     if (_sun_altitude > 0)
     {
         _display.display_status("Setting azimuth", "servo", "");
-        _azimuth_servo.set_target(_sun_azimuth, 80);
+        _azimuth_servo.set_target(_sun_azimuth, 10);
         _display.display_status("Setting altitude", "servo", "");
-        _altitude_servo.set_target(_sun_altitude, 80);
+        Serial.println("setting altitude to " + String(_sun_altitude));
+        _altitude_servo.set_target(_sun_altitude, 10);
 
         _web_client.log_info(LOG_NAME_LIGHT_SLEEP, _log_message);
         Serial.println("light sleeping for " + String(_tracking_delay / DELAY_MINUTE) + " minutes");
-        _display.display_current_positions(_sun_azimuth, _sun_altitude);
+        _display.display_current_positions("Current Position", _sun_azimuth, _sun_altitude);
         delay(_tracking_delay);
     }
     else // after sunset
@@ -84,19 +85,26 @@ void Controller::set_default_position()
 {
     Serial.println("setting defaut position...");
 
-    _azimuth_servo.set_target(DEFAULT_AZIMUTH_POSITION, 70);
-    _altitude_servo.set_target(DEFAULT_ALTITUDE_POSITION, 70);
+    _azimuth_servo.set_target(DEFAULT_AZIMUTH_POSITION, 10);
+    _altitude_servo.set_target(DEFAULT_ALTITUDE_POSITION, 10);
 }
 
 void Controller::calibrate_servos()
 {
-    _altitude_servo.set_target(0, 100);
-    delay(1000);
-    _altitude_servo.set_target(180, 100);
-    delay(2000);
+    String subtitle = "Calibrating Servos";
 
-    _azimuth_servo.set_target(0, 100);
-    delay(1000);
-    _azimuth_servo.set_target(180, 100);
-    delay(2000);
+    while (true)
+    {
+        _display.display_current_positions(subtitle, 270, 0);
+        _altitude_servo.set_target(0, 10); // pointing to horizon
+
+        // _display.display_current_positions(subtitle, 90, 0);
+        // _azimuth_servo.set_target(90, 20); // due east
+
+        _display.display_current_positions(subtitle, 90, 90);
+        _altitude_servo.set_target(90, 10); // straight up
+
+        // _display.display_current_positions(subtitle, 270, 90);
+        // _azimuth_servo.set_target(270, 20); // due west
+    }
 }

@@ -14,7 +14,7 @@ public:
     void init(void);
     void set_header(String line_1, String line_2);
     void display_status(String line_1, String line_2, String line_3);
-    void display_current_positions(float azimuth, float altitude);
+    void display_current_positions(String subtitle, float azimuth, float altitude);
     void sleep(void);
 
 private:

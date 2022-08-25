@@ -8,6 +8,10 @@ namespace constants {
     constexpr int DELAY_MINUTE = 60 * DELAY_SECOND;
     constexpr int SECONDS_IN_DAY = 86400;
 
+    constexpr int AZIMUTH_SERVO_MIN_MICROSEC = 420;
+    constexpr int AZIMUTH_SERVO_MAX_MICROSEC = 2400;
+    constexpr int ALTITUDE_SERVO_MIN_MICROSEC = 420;
+    constexpr int ALTITUDE_SERVO_MAX_MICROSEC = 2400;
     constexpr int DEFAULT_AZIMUTH_POSITION = 180;
     constexpr int DEFAULT_ALTITUDE_POSITION = 0;
 

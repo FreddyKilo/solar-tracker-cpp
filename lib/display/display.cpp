@@ -50,21 +50,17 @@ void Display::display_status(String line_1, String line_2, String line_3)
     _display.setCursor(cursor_x_3, 44);
     _display.println(line_3);
     _display.display();
-    delay(1000);
+    delay(DELAY_SECOND);
 }
 
-void Display::display_current_positions(float azimuth, float altitude)
+void Display::display_current_positions(String subtitle, float azimuth, float altitude)
 {
     String azimuth_key = "X: ";
     String altitude_key = "Y: ";
 
-    if (azimuth >= 100.0)
-        azimuth_key = "X:";
+    if (azimuth >= 100.0) azimuth_key = "X:";
+    if (altitude < 10.0) altitude_key = "Y:  ";
 
-    if (altitude < 10.0)
-        altitude_key = "Y:  ";
-
-    String subtitle = "Current Position";
     String azimuth_position = azimuth_key + String(azimuth);
     String altitude_position = altitude_key + String(altitude);
 
@@ -89,6 +85,7 @@ void Display::display_current_positions(float azimuth, float altitude)
 void Display::sleep()
 {
     _display.clearDisplay();
+    _display.display();
 }
 
 int Display::get_cursor_start_centered(String text, int char_width)
