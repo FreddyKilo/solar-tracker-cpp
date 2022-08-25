@@ -92,19 +92,25 @@ void Controller::set_default_position()
 void Controller::calibrate_servos()
 {
     String subtitle = "Calibrating Servos";
+    float x_angle;
+    float y_angle;
 
     while (true)
     {
-        _display.display_current_positions(subtitle, 270, 0);
-        _altitude_servo.set_target(0, 10); // pointing to horizon
+        y_angle = 13.84736;
+        _display.display_current_positions(subtitle, x_angle, y_angle);
+        _altitude_servo.set_target(y_angle, 5); // to horizon
 
-        // _display.display_current_positions(subtitle, 90, 0);
-        // _azimuth_servo.set_target(90, 20); // due east
+        x_angle = 93.80928;
+        _display.display_current_positions(subtitle, x_angle, y_angle);
+        _azimuth_servo.set_target(x_angle, MAX_SERVO_SPEED); // east
 
-        _display.display_current_positions(subtitle, 90, 90);
-        _altitude_servo.set_target(90, 10); // straight up
+        y_angle = 74.00293;
+        _display.display_current_positions(subtitle, x_angle, y_angle);
+        _altitude_servo.set_target(y_angle, MAX_SERVO_SPEED); // up
 
-        // _display.display_current_positions(subtitle, 270, 90);
-        // _azimuth_servo.set_target(270, 20); // due west
+        x_angle = 255.93002;
+        _display.display_current_positions(subtitle, x_angle, y_angle);
+        _azimuth_servo.set_target(x_angle, MAX_SERVO_SPEED); // west
     }
 }

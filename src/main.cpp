@@ -9,6 +9,7 @@ Controller controller;
 void setup()
 {
   Serial.begin(9600);
+  controller.calibrate_servos();
   controller.connect_to_wifi();
 }
 

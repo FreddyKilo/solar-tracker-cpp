@@ -1,4 +1,7 @@
 #include "panel_servo.h"
+#include "constants.h"
+
+using namespace constants;
 
 PanelServo::PanelServo(int pinout, int min_microseconds, int max_microseconds)
 {
@@ -11,10 +14,8 @@ void PanelServo::set_target(float angle, int speed)
 {
     _servo.attach(_pinout, _min, _max);
 
-    if (speed > 20)
-        speed = 20;
-    if (speed < 0)
-        speed = 0;
+    if (speed > MAX_SERVO_SPEED) speed = MAX_SERVO_SPEED;
+    if (speed < 1) speed = 1;
 
     int target = 0;
     if (_pinout == D5)

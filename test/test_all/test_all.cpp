@@ -38,21 +38,21 @@ void test_seconds_to_sunrise()
     TEST_ASSERT_EQUAL(expected, to_sunrise);
 }
 
-void test_map_azimuth_angle()
+void test_map_azimuth_to_microsec()
 {
     // the 0 degree postion of the servo used for azimuth is at the 3 o'clock position
     // and 180 is counter clockwise to 9 o'clock
     
-    int sunrise_azimuth = 90; // due east
-    int sunset_azimuth = 270; // due west
+    float sunrise_azimuth = 90.0; // due east
+    float sunset_azimuth = 270.0; // due west
 
     PanelServo servo = PanelServo(0, 0, 0);
 
-    int angle = servo.map_azimuth_angle(sunrise_azimuth);
-    TEST_ASSERT_EQUAL(180, angle);
+    int microsec = servo.map_azimuth_to_microsec(sunrise_azimuth);
+    TEST_ASSERT_EQUAL(420, microsec);
 
-    angle = servo.map_azimuth_angle(sunset_azimuth);
-    TEST_ASSERT_EQUAL(0, angle);
+    microsec = servo.map_azimuth_to_microsec(sunset_azimuth);
+    TEST_ASSERT_EQUAL(2400, microsec);
 }
 
 void setup()
