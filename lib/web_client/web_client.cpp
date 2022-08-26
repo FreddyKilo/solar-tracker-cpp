@@ -11,10 +11,7 @@ WebClient::WebClient() : _json_response(1024)
 
 DynamicJsonDocument WebClient::get_astronomy_data()
 {
-    Serial.println("getting astronomy data");
-
     String path = "/astronomy?apiKey=" + String(IP_GEOLOCATION_API_KEY);
-
     return _get(_ip_geolocation_domain + path);
 }
 

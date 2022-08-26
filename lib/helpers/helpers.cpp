@@ -24,3 +24,11 @@ int seconds_to_sunrise(int current_time, int sunrise)
     return sunrise - current_time;
   }
 }
+
+std::string to_readable_time(string current_time)
+{
+  string hours = current_time.substr(0, 2);
+  string minutes = current_time.substr(3, 2);
+
+  return hours.append(":").append(minutes);
+}
