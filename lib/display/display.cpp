@@ -35,6 +35,8 @@ void Display::set_header(String line_1, String line_2)
 
 void Display::display_status(String line_1, String line_2, String line_3)
 {
+    Serial.println(line_1 + " " + line_2 + " " + line_3);
+
     _display.clearDisplay();
     set_header("", STATUS_HEADER);
 
@@ -63,6 +65,10 @@ void Display::display_current_positions(String subtitle, float azimuth, float al
 
     String azimuth_position = azimuth_key + String(azimuth);
     String altitude_position = altitude_key + String(altitude);
+
+    Serial.println(subtitle);
+    Serial.println(azimuth_position);
+    Serial.println(altitude_position);
 
     int subtitle_x = get_cursor_start_centered(subtitle, CHAR_SIZE_1_WIDTH);
     int azimuth_x = get_cursor_start_centered(azimuth_position, CHAR_SIZE_2_WIDTH);
