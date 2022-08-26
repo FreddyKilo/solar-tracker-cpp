@@ -14,7 +14,7 @@ public:
 
     void connect_to_wifi(void);
     void run(void);
-    void set_default_position(void);
+    void calibrate_votage_reading(void);
     void calibrate_servos(void);
 
 private:
@@ -25,10 +25,11 @@ private:
     PanelServo _azimuth_servo;
     PanelServo _altitude_servo;
     DynamicJsonDocument _log_message;
-    int _tracking_delay;
     Display _display;
 
+    float read_voltage_level(void);
     void get_astronomy_data(void);
+    void deep_sleep(int sleep_seconds);
 };
 
 #endif
