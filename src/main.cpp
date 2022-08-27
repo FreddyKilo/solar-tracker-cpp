@@ -2,6 +2,9 @@
 
 #include "led.h"
 #include "controller.h"
+#include "constants.h"
+
+using namespace constants;
 
 LED led(LED_BUILTIN);
 Controller controller;
@@ -9,12 +12,11 @@ Controller controller;
 void setup()
 {
   Serial.begin(9600);
-  controller.calibrate_servos();
   controller.connect_to_wifi();
 }
 
 void loop()
 {
-  led.blink_many(3, 100);
+  led.blink_many(3, 120);
   controller.run();
 }

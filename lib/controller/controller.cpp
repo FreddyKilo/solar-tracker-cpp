@@ -37,8 +37,13 @@ void Controller::connect_to_wifi()
     _display.display_status("", "Connected!", "");
 }
 
-void Controller::run()
+void Controller::run(std::uint8_t mode)
 {
+    if (mode == RUN_MODE_CALIBRATE_SERVOS)
+        calibrate_servos();
+    if (mode == RUN_MODE_CALIBRATE_VOLTAGE)
+        calibrate_votage_reading();
+
     Serial.println("\n\n=====Tracking Controller running=====");
 
     float voltage_level = read_voltage_level();
@@ -118,13 +123,21 @@ void Controller::deep_sleep(int sleep_seconds)
 
     delay(DELAY_SECOND * 10);
     _display.sleep();
-    
+
+    if (sleep_seconds > MAX_DEEP_SLEEP_SECONDS)
+        sleep_seconds = MAX_DEEP_SLEEP_SECONDS;
     ESP.deepSleep(sleep_seconds * DEEP_SLEEP_SECOND);
 }
 
 void Controller::calibrate_votage_reading()
 {
-    _display.display_status("Calibrating", "voltage level", String(read_voltage_level()));
+    float voltage;
+    while (true)
+    {
+        voltage = read_voltage_level();
+        _display.display_status("voltage level", String(voltage), "");
+        delay(1000);
+    }
 }
 
 void Controller::calibrate_servos()

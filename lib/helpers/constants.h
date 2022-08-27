@@ -7,6 +7,7 @@ namespace constants {
     constexpr int DELAY_MINUTE = 60 * DELAY_SECOND;
     constexpr int TRACKING_DELAY = 5 * DELAY_MINUTE;
     constexpr int SECONDS_IN_DAY = 86400;
+    constexpr int MAX_DEEP_SLEEP_SECONDS = 12000; // any more than this risks the device never waking
 
     constexpr int AZIMUTH_SERVO_MIN_MICROSEC = 420;
     constexpr int AZIMUTH_SERVO_MAX_MICROSEC = 2400;
@@ -30,6 +31,9 @@ namespace constants {
     constexpr int MAX_ADC_INPUT = 600;
     constexpr float MIN_BATTERY = 3.2;
     constexpr float MAX_BATTERY = 4.2;
+
+    constexpr std::uint8_t RUN_MODE_CALIBRATE_SERVOS = 0b00000001;
+    constexpr std::uint8_t RUN_MODE_CALIBRATE_VOLTAGE = 0b00000010;
 }
 
 #endif

@@ -13,9 +13,7 @@ public:
     Controller(void);
 
     void connect_to_wifi(void);
-    void run(void);
-    void calibrate_votage_reading(void);
-    void calibrate_servos(void);
+    void run(std::uint8_t mode = 0b00000000);
 
 private:
     WebClient _web_client;
@@ -29,6 +27,8 @@ private:
 
     float read_voltage_level(void);
     void get_astronomy_data(void);
+    void calibrate_servos(void);
+    void calibrate_votage_reading(void);
     void deep_sleep(int sleep_seconds);
 };
 
