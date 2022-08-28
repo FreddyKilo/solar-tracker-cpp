@@ -92,7 +92,7 @@ float Controller::read_voltage_level()
 
     int total = 0;
     int reading;
-    int reading_count = 8;
+    int reading_count = 16;
     vector<int> adc_readings;
     adc_readings.reserve(reading_count);
 
