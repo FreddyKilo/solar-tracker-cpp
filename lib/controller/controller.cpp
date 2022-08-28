@@ -59,12 +59,16 @@ void Controller::run(std::uint8_t mode)
     _log_message["currentAltitude"] = _sun_altitude;
     _log_message["batteryVoltage"] = voltage_level;
 
-    if (_sun_altitude > 0)
+    int current_time = time_to_seconds(_astronomy_data["current_time"]);
+    int sunrise = time_to_seconds(_astronomy_data["sunrise"]);
+    int sunset = time_to_seconds(_astronomy_data["sunset"]);
+
+    if (sunrise <= current_time and current_time <= sunset)
     {
         _display.display_status("Setting azimuth", "servo", "");
-        _azimuth_servo.set_target(_sun_azimuth, 10);
+        _azimuth_servo.set_target(_sun_azimuth, 5);
         _display.display_status("Setting altitude", "servo", "");
-        _altitude_servo.set_target(_sun_altitude, 10);
+        _altitude_servo.set_target(_sun_altitude, 5);
 
         _web_client.log_info(LOG_NAME_LIGHT_SLEEP, _log_message);
         _display.display_current_positions("Current Position", _sun_azimuth, _sun_altitude);
@@ -72,11 +76,8 @@ void Controller::run(std::uint8_t mode)
     }
     else // after sunset
     {
-        int current_time = time_to_seconds(_astronomy_data["current_time"]);
-        int sunrise = time_to_seconds(_astronomy_data["sunrise"]);
-        int delay_time = seconds_to_sunrise(current_time, sunrise);
-
-        deep_sleep(delay_time);
+        int sleep_seconds = seconds_to_sunrise(current_time, sunrise);
+        deep_sleep(sleep_seconds);
     }
 }
 
@@ -89,18 +90,36 @@ float Controller::read_voltage_level()
 {
     _display.display_status("Reading voltage level", "", "");
 
+    int total = 0;
+    int reading;
+    int reading_count = 8;
     vector<int> adc_readings;
-    for (int i = 0; i < 8; i++)
+    adc_readings.reserve(reading_count);
+
+    delay(500); // stabilize before reading
+    for (int i = reading_count; i > 0; i--)
     {
-        adc_readings.push_back(analogRead(A0));
+        reading = analogRead(A0);
+        total += reading;
+        adc_readings.push_back(reading);
         delay(100);
     }
 
-    int total = 0;
+    // eliminate high and low reading for better accuracy with average
+    int high = 0;
+    int low = 1023;
     for (auto &reading : adc_readings)
-        total += reading;
+    {
+        if (reading > high)
+            high = reading;
+        if (reading < low)
+            low = reading;
+    }
 
-    int average = total / adc_readings.size();
+    // average the total minus the high and low readings
+    total -= high;
+    total -= low;
+    int average = total / (reading_count - 2);
 
     // calibrating the voltage measurement with a multimeter resulted in 460 - 600 mapping to 3.2v - 4.2v
     // need a custom mapper to return a float
@@ -109,24 +128,24 @@ float Controller::read_voltage_level()
 
 void Controller::deep_sleep(int sleep_seconds)
 {
-    _display.display_status("Setting default", "position", "");
-
-    _azimuth_servo.set_target(DEFAULT_AZIMUTH_POSITION, 10);
-    _altitude_servo.set_target(DEFAULT_ALTITUDE_POSITION, 10);
-
-    _log_message["sleepMinutes"] = sleep_seconds / 60;
-    _web_client.log_info(LOG_NAME_DEEP_SLEEP, _log_message);
-
-    _display.display_status("Deep sleeping for",
-                            String(sleep_seconds / 60) + " minutes",
-                            "GoodNight (-.-) Zzz..");
-
-    delay(DELAY_SECOND * 10);
-    _display.sleep();
+    _display.display_status("Setting default", "position", "Goodnight (-.-) Zzz..");
+    _azimuth_servo.set_target(DEFAULT_AZIMUTH_POSITION, MAX_SERVO_SPEED);
+    _altitude_servo.set_target(DEFAULT_ALTITUDE_POSITION, MAX_SERVO_SPEED);
 
     if (sleep_seconds > MAX_DEEP_SLEEP_SECONDS)
         sleep_seconds = MAX_DEEP_SLEEP_SECONDS;
-    ESP.deepSleep(sleep_seconds * DEEP_SLEEP_SECOND);
+    else
+        sleep_seconds += 300; // give a 5 min buffer due to astronomy API inaccuracies
+
+    uint64_t sleep_time = sleep_seconds * ADJUSTED_DEEP_SLEEP_SECOND;
+    _log_message["sleepMinutes"] = sleep_seconds / 60;
+    _log_message["sleepSeconds"] = sleep_seconds;
+    _log_message["adjustedSleepSeconds"] = sleep_time / DEEP_SLEEP_SECOND;
+    _log_message["deepSleepMax"] = ESP.deepSleepMax();
+    _web_client.log_info(LOG_NAME_DEEP_SLEEP, _log_message);
+
+    _display.sleep();
+    ESP.deepSleep(sleep_time);
 }
 
 void Controller::calibrate_votage_reading()
