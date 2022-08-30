@@ -14,12 +14,16 @@ public:
     DynamicJsonDocument get_astronomy_data();
     DynamicJsonDocument log_info(String log_name, DynamicJsonDocument message_json);
     DynamicJsonDocument log_error(String log_name, DynamicJsonDocument message_json);
+    DynamicJsonDocument plot_voltage_level_thingspeak(float voltage_level);
+    DynamicJsonDocument plot_voltage_level_aio(float voltage_level);
 
 private:
     WiFiClient _wifi_client;
     HTTPClient _http_client;
     String _ip_geolocation_domain;
     String _dweet_domain;
+    String _thingspeak_domain;
+    String _aio_domain;
     DynamicJsonDocument _json_response;
 
     DynamicJsonDocument _get(String url);

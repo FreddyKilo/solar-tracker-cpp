@@ -44,10 +44,9 @@ void Controller::run(std::uint8_t mode)
     if (mode == RUN_MODE_CALIBRATE_VOLTAGE)
         calibrate_votage_reading();
 
-    Serial.println("\n\n=====Tracking Controller running=====");
-
     float voltage_level = read_voltage_level();
     _display.display_status("Voltage level", String(voltage_level) + "v", "");
+    _web_client.plot_voltage_level_aio(voltage_level);
 
     _display.display_status("Getting astronomy", "data", "");
     _astronomy_data = _web_client.get_astronomy_data();
@@ -167,20 +166,20 @@ void Controller::calibrate_servos()
 
     while (true)
     {
-        y_angle = 90;
+        y_angle = 0; // to horizon
         _display.display_current_positions(subtitle, x_angle, y_angle);
-        _altitude_servo.set_target(y_angle, 5); // to horizon
+        _altitude_servo.set_target(y_angle, 5);
 
-        x_angle = 93.80928;
+        x_angle = 90; // east
         _display.display_current_positions(subtitle, x_angle, y_angle);
-        _azimuth_servo.set_target(x_angle, MAX_SERVO_SPEED); // east
+        _azimuth_servo.set_target(x_angle, MAX_SERVO_SPEED);
 
-        y_angle = 0;
+        y_angle = 90; // up
         _display.display_current_positions(subtitle, x_angle, y_angle);
-        _altitude_servo.set_target(y_angle, MAX_SERVO_SPEED); // up
+        _altitude_servo.set_target(y_angle, MAX_SERVO_SPEED);
 
-        x_angle = 255.93002;
+        x_angle = 270; // west
         _display.display_current_positions(subtitle, x_angle, y_angle);
-        _azimuth_servo.set_target(x_angle, MAX_SERVO_SPEED); // west
+        _azimuth_servo.set_target(x_angle, MAX_SERVO_SPEED);
     }
 }

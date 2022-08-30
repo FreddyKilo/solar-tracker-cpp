@@ -7,6 +7,8 @@ WebClient::WebClient() : _json_response(1024)
 {
     _ip_geolocation_domain = "http://api.ipgeolocation.io";
     _dweet_domain = "http://dweet.io";
+    _thingspeak_domain = "http://api.thingspeak.com";
+    _aio_domain = "http://io.adafruit.com";
 }
 
 DynamicJsonDocument WebClient::get_astronomy_data()
@@ -17,8 +19,6 @@ DynamicJsonDocument WebClient::get_astronomy_data()
 
 DynamicJsonDocument WebClient::log_info(String log_name, DynamicJsonDocument message_json)
 {
-    Serial.println("logging info to " + log_name);
-
     String path = "/dweet/for/";
     String url = _dweet_domain + path + log_name;
 
@@ -26,6 +26,19 @@ DynamicJsonDocument WebClient::log_info(String log_name, DynamicJsonDocument mes
     serializeJson(message_json, payload);
 
     return _post(url, payload);
+}
+
+DynamicJsonDocument WebClient::plot_voltage_level_thingspeak(float voltage_level)
+{
+    String path = "/update?api_key=" + String(THINGSPEAK_API_WRITE_KEY) + "&field1=" + String(voltage_level);
+    return _get(_thingspeak_domain + path);
+}
+
+DynamicJsonDocument WebClient::plot_voltage_level_aio(float voltage_level)
+{
+    String path = "/api/v2/" + String(AIO_USERNAME) + "/feeds/solar-tracker-feed/data?x-aio-key=" + String(AIO_KEY);
+    String payload = "{\"value\":" + String(voltage_level) + "}";
+    return _post(_aio_domain + path, payload);
 }
 
 DynamicJsonDocument WebClient::_get(String url)
@@ -49,7 +62,6 @@ DynamicJsonDocument WebClient::_get(String url)
 DynamicJsonDocument WebClient::_post(String url, String payload)
 {
     HTTPClient http_client;
-
     http_client.begin(_wifi_client, url);
     http_client.addHeader("Content-Type", "application/json");
     int response_code = http_client.POST(payload);
