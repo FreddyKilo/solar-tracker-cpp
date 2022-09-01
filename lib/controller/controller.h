@@ -30,6 +30,7 @@ private:
     void calibrate_servos(void);
     void calibrate_votage_reading(void);
     void deep_sleep(int sleep_seconds);
+    void wait_for_wifi(void);
 };
 
 #endif

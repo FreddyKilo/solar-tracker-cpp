@@ -27,11 +27,7 @@ void Controller::connect_to_wifi()
     WiFi.mode(WIFI_STA);
     WiFi.begin(NETWORK_SSID, NETWORK_PASS);
 
-    while (WiFi.status() != WL_CONNECTED)
-    {
-        delay(1000);
-        Serial.print(".");
-    }
+    wait_for_wifi();
 
     wifi_set_sleep_type(LIGHT_SLEEP_T);
     _display.display_status("", "Connected!", "");
@@ -45,8 +41,9 @@ void Controller::run(std::uint8_t mode)
         calibrate_votage_reading();
 
     float voltage_level = read_voltage_level();
+    int battery_percentage = voltage_to_percentage(voltage_level);
     _display.display_status("Voltage level", String(voltage_level) + "v", "");
-    _web_client.plot_voltage_level_aio(voltage_level);
+    _web_client.plot_voltage_level_aio(voltage_level, battery_percentage);
 
     _display.display_status("Getting astronomy", "data", "");
     _astronomy_data = _web_client.get_astronomy_data();
@@ -69,7 +66,7 @@ void Controller::run(std::uint8_t mode)
         _display.display_status("Setting altitude", "servo", "");
         _altitude_servo.set_target(_sun_altitude, 5);
 
-        _web_client.log_info(LOG_NAME_LIGHT_SLEEP, _log_message);
+        _web_client.log_info(LOG_NAME_RUNNING, _log_message);
         _display.display_current_positions("Current Position", _sun_azimuth, _sun_altitude);
         delay(TRACKING_DELAY);
     }
@@ -80,49 +77,24 @@ void Controller::run(std::uint8_t mode)
     }
 }
 
-// Gets an average input value from the ADC pin A0 then maps it to a reabable voltage level
+// Gets an input value from the ADC pin A0 then maps it to a reabable voltage level
 // Analog input of 0v - 3.3v maps to a digital range of 0 - 1023
 // Reading will be of range 496 - 652 for a voltage range of 1.6v to 2.1 (using a voltage divider)
 // Need to map input range of 496 - 652 to output 3.20 to 4.20 (low and high range of battery)
-// The Arduino map library returns truncated integer value so a custom mapper was needed
 float Controller::read_voltage_level()
 {
+    // need to turn off wifi modem to get a stable and accurate reading from A0, this is a hardware flaw
+    WiFi.forceSleepBegin(0);
+
     _display.display_status("Reading voltage level", "", "");
+    int reading = analogRead(A0);
 
-    int total = 0;
-    int reading;
-    int reading_count = 16;
-    vector<int> adc_readings;
-    adc_readings.reserve(reading_count);
-
-    delay(500); // stabilize before reading
-    for (int i = reading_count; i > 0; i--)
-    {
-        reading = analogRead(A0);
-        total += reading;
-        adc_readings.push_back(reading);
-        delay(100);
-    }
-
-    // eliminate high and low reading for better accuracy with average
-    int high = 0;
-    int low = 1023;
-    for (auto &reading : adc_readings)
-    {
-        if (reading > high)
-            high = reading;
-        if (reading < low)
-            low = reading;
-    }
-
-    // average the total minus the high and low readings
-    total -= high;
-    total -= low;
-    int average = total / (reading_count - 2);
+    WiFi.forceSleepWake();
+    wait_for_wifi();
 
     // calibrating the voltage measurement with a multimeter resulted in 460 - 600 mapping to 3.2v - 4.2v
     // need a custom mapper to return a float
-    return (average - MIN_ADC_INPUT) * (MAX_BATTERY - MIN_BATTERY) / (MAX_ADC_INPUT - MIN_ADC_INPUT) + MIN_BATTERY;
+    return map_float(reading, MIN_ADC_INPUT, MAX_ADC_INPUT, MIN_BATTERY, MAX_BATTERY);
 }
 
 void Controller::deep_sleep(int sleep_seconds)
@@ -147,6 +119,18 @@ void Controller::deep_sleep(int sleep_seconds)
     ESP.deepSleep(sleep_time);
 }
 
+void Controller::wait_for_wifi()
+{
+    _display.display_status("Waiting for WiFi", "to connect", "");
+
+    while (WiFi.status() != WL_CONNECTED)
+    {
+        delay(1000);
+        Serial.print(".");
+    }
+    Serial.println("");
+}
+
 void Controller::calibrate_votage_reading()
 {
     float voltage;
@@ -154,7 +138,7 @@ void Controller::calibrate_votage_reading()
     {
         voltage = read_voltage_level();
         _display.display_status("voltage level", String(voltage), "");
-        delay(1000);
+        delay(2000);
     }
 }
 

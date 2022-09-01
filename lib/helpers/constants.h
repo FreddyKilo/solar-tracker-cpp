@@ -18,7 +18,7 @@ namespace constants {
     constexpr int DEFAULT_ALTITUDE_POSITION = 0;
     constexpr int MAX_SERVO_SPEED = 10;
 
-    constexpr auto LOG_NAME_LIGHT_SLEEP = "tracker-v2-light-sleep";
+    constexpr auto LOG_NAME_RUNNING = "tracker-v2-running";
     constexpr auto LOG_NAME_DEEP_SLEEP = "tracker-v2-deep-sleep";
 
     constexpr int DISPLAY_PIXEL_WIDTH = 128;
@@ -28,7 +28,7 @@ namespace constants {
     constexpr auto STATUS_HEADER = "-- STATUS --";
 
     // ranges for mapping ADC input to battery voltage
-    constexpr int MIN_ADC_INPUT = 460;
+    constexpr int MIN_ADC_INPUT = 461;
     constexpr int MAX_ADC_INPUT = 600;
     constexpr float MIN_BATTERY = 3.2;
     constexpr float MAX_BATTERY = 4.2;

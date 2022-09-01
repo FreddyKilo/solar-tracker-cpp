@@ -1,5 +1,6 @@
 #include "panel_servo.h"
 #include "constants.h"
+#include "helpers.h"
 
 using namespace constants;
 
@@ -46,10 +47,10 @@ int PanelServo::get_angle()
 
 int PanelServo::map_azimuth_to_microsec(float sun_azimuth)
 {
-    return map(sun_azimuth, 60, 300, _max, _min);
+    return map_float(sun_azimuth, 60, 300, _max, _min);
 }
 
 int PanelServo::map_altitude_to_microsec(float sun_altitude)
 {
-    return map(sun_altitude, 0, 180, _min, _max);
+    return map_float(sun_altitude, 0, 180, _min, _max);
 }

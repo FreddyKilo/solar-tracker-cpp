@@ -34,10 +34,17 @@ DynamicJsonDocument WebClient::plot_voltage_level_thingspeak(float voltage_level
     return _get(_thingspeak_domain + path);
 }
 
-DynamicJsonDocument WebClient::plot_voltage_level_aio(float voltage_level)
+DynamicJsonDocument WebClient::plot_voltage_level_aio(float voltage_level, int percentage)
 {
-    String path = "/api/v2/" + String(AIO_USERNAME) + "/feeds/solar-tracker-feed/data?x-aio-key=" + String(AIO_KEY);
+    String voltage_level_feed_name = "battery-voltage-level";
+    String percentage_feed_name = "battery-percentage";
+
+    String path = "/api/v2/" + String(AIO_USERNAME) + "/feeds/" + voltage_level_feed_name + "/data?x-aio-key=" + String(AIO_KEY);
     String payload = "{\"value\":" + String(voltage_level) + "}";
+    _post(_aio_domain + path, payload);
+
+    path = "/api/v2/" + String(AIO_USERNAME) + "/feeds/" + percentage_feed_name + "/data?x-aio-key=" + String(AIO_KEY);
+    payload = "{\"value\":" + String(percentage) + "}";
     return _post(_aio_domain + path, payload);
 }
 

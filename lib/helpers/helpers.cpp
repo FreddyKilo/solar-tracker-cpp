@@ -32,3 +32,13 @@ std::string to_readable_time(string current_time)
 
   return hours.append(":").append(minutes);
 }
+
+int voltage_to_percentage(float voltage)
+{
+  return map_float(voltage, MIN_BATTERY, MAX_BATTERY, 0, 100);
+}
+
+float map_float(float input, float in_min, float in_max, float out_min, float out_max)
+{
+  return (input - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+}

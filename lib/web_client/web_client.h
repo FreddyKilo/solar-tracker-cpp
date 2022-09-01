@@ -15,7 +15,7 @@ public:
     DynamicJsonDocument log_info(String log_name, DynamicJsonDocument message_json);
     DynamicJsonDocument log_error(String log_name, DynamicJsonDocument message_json);
     DynamicJsonDocument plot_voltage_level_thingspeak(float voltage_level);
-    DynamicJsonDocument plot_voltage_level_aio(float voltage_level);
+    DynamicJsonDocument plot_voltage_level_aio(float voltage_level, int percentage);
 
 private:
     WiFiClient _wifi_client;
