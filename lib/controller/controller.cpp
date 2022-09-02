@@ -29,7 +29,7 @@ void Controller::connect_to_wifi()
 
     wait_for_wifi();
 
-    wifi_set_sleep_type(LIGHT_SLEEP_T);
+    wifi_set_sleep_type(MODEM_SLEEP_T);
     _display.display_status("", "Connected!", "");
 }
 
@@ -62,12 +62,18 @@ void Controller::run(std::uint8_t mode)
     if (sunrise <= current_time and current_time <= sunset)
     {
         _display.display_status("Setting azimuth", "servo", "");
-        _azimuth_servo.set_target(_sun_azimuth, 5);
+        _azimuth_servo.set_target(2 * _sun_azimuth - _prev_azimuth, 5);
+        _prev_azimuth = _sun_azimuth;
+
         _display.display_status("Setting altitude", "servo", "");
-        _altitude_servo.set_target(_sun_altitude, 5);
+        _altitude_servo.set_target(2 * _sun_altitude - _prev_altitude, 5);
+        _prev_altitude = _sun_altitude;
 
         _web_client.log_info(LOG_NAME_RUNNING, _log_message);
-        _display.display_current_positions("Current Position", _sun_azimuth, _sun_altitude);
+        _display.display_current_positions("Current Position",
+                                           2 * _sun_azimuth - _prev_azimuth,
+                                           2 * _sun_altitude - _prev_altitude);
+        _display.sleep();
         delay(TRACKING_DELAY);
     }
     else // after sunset
@@ -78,13 +84,11 @@ void Controller::run(std::uint8_t mode)
 }
 
 // Gets an input value from the ADC pin A0 then maps it to a reabable voltage level
-// Analog input of 0v - 3.3v maps to a digital range of 0 - 1023
-// Reading will be of range 496 - 652 for a voltage range of 1.6v to 2.1 (using a voltage divider)
-// Need to map input range of 496 - 652 to output 3.20 to 4.20 (low and high range of battery)
 float Controller::read_voltage_level()
 {
     // need to turn off wifi modem to get a stable and accurate reading from A0, this is a hardware flaw
     WiFi.forceSleepBegin(0);
+    delay(1000);
 
     _display.display_status("Reading voltage level", "", "");
     int reading = analogRead(A0);
@@ -92,7 +96,7 @@ float Controller::read_voltage_level()
     WiFi.forceSleepWake();
     wait_for_wifi();
 
-    // calibrating the voltage measurement with a multimeter resulted in 460 - 600 mapping to 3.2v - 4.2v
+    // calibrating the voltage measurement with a multimeter resulted in 460 - 600 mapping for 3.20v - 4.20v
     // need a custom mapper to return a float
     return map_float(reading, MIN_ADC_INPUT, MAX_ADC_INPUT, MIN_BATTERY, MAX_BATTERY);
 }
@@ -138,7 +142,6 @@ void Controller::calibrate_votage_reading()
     {
         voltage = read_voltage_level();
         _display.display_status("voltage level", String(voltage), "");
-        delay(2000);
     }
 }
 

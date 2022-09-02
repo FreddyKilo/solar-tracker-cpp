@@ -6,7 +6,7 @@ namespace constants {
     constexpr double ADJUSTED_DEEP_SLEEP_SECOND = 1.07e6; // the Wemos RTC is slightly off, need to add compensation
     constexpr int DELAY_SECOND = 1000;
     constexpr int DELAY_MINUTE = 60 * DELAY_SECOND;
-    constexpr int TRACKING_DELAY = 5 * DELAY_MINUTE;
+    constexpr int TRACKING_DELAY = 10 * DELAY_MINUTE;
     constexpr int SECONDS_IN_DAY = 86400;
     constexpr int MAX_DEEP_SLEEP_SECONDS = 10800; // any more than this (3 hours) risks the device never waking, this is a hardware limitation that needs a workaround
 

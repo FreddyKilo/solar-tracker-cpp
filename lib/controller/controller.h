@@ -20,6 +20,8 @@ private:
     DynamicJsonDocument _astronomy_data;
     float _sun_azimuth;
     float _sun_altitude;
+    float _prev_azimuth;
+    float _prev_altitude;
     PanelServo _azimuth_servo;
     PanelServo _altitude_servo;
     DynamicJsonDocument _log_message;
