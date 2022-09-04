@@ -22,11 +22,10 @@ Controller::Controller()
 
 void Controller::connect_to_wifi()
 {
-    _display.display_status("", "Connecting to WiFi", "");
-
     WiFi.mode(WIFI_STA);
     WiFi.begin(NETWORK_SSID, NETWORK_PASS);
 
+    _display.display_status("", "Connecting to WiFi", "");
     wait_for_wifi();
 
     wifi_set_sleep_type(MODEM_SLEEP_T);
@@ -43,7 +42,6 @@ void Controller::run(std::uint8_t mode)
     float voltage_level = read_voltage_level();
     int battery_percentage = voltage_to_percentage(voltage_level);
     _display.display_status("Voltage level", String(voltage_level) + "v", "");
-    _web_client.plot_voltage_level_aio(voltage_level, battery_percentage);
 
     _display.display_status("Getting astronomy", "data", "");
     _astronomy_data = _web_client.get_astronomy_data();
@@ -61,19 +59,26 @@ void Controller::run(std::uint8_t mode)
 
     if (sunrise <= current_time and current_time <= sunset)
     {
-        _display.display_status("Setting azimuth", "servo", "");
-        _azimuth_servo.set_target(2 * _sun_azimuth - _prev_azimuth, 5);
-        _prev_azimuth = _sun_azimuth;
+        Serial.println("previous_azimuth" + String(_prev_azimuth));
+        if (_prev_azimuth == 0)
+            _prev_azimuth = _sun_azimuth;
+        if (_prev_altitude == 0)
+            _prev_altitude = _sun_altitude;
 
-        _display.display_status("Setting altitude", "servo", "");
-        _altitude_servo.set_target(2 * _sun_altitude - _prev_altitude, 5);
+        float leading_azimuth_target = 2 * _sun_azimuth - _prev_azimuth;
+        float leading_altitude_target = 2 * _sun_altitude - _prev_altitude;
+        _prev_azimuth = _sun_azimuth;
         _prev_altitude = _sun_altitude;
 
-        _web_client.log_info(LOG_NAME_RUNNING, _log_message);
-        _display.display_current_positions("Current Position",
-                                           2 * _sun_azimuth - _prev_azimuth,
-                                           2 * _sun_altitude - _prev_altitude);
-        _display.sleep();
+        _display.display_status("Setting azimuth", "servo", "");
+        _azimuth_servo.set_target(leading_azimuth_target, 5);
+
+        _display.display_status("Setting altitude", "servo", "");
+        _altitude_servo.set_target(leading_altitude_target, 5);
+
+        _web_client.log_data_aio(voltage_level, battery_percentage, leading_azimuth_target, leading_altitude_target);
+
+        _display.display_current_positions("Current Position", leading_azimuth_target, leading_altitude_target);
         delay(TRACKING_DELAY);
     }
     else // after sunset
@@ -159,14 +164,14 @@ void Controller::calibrate_servos()
 
         x_angle = 90; // east
         _display.display_current_positions(subtitle, x_angle, y_angle);
-        _azimuth_servo.set_target(x_angle, MAX_SERVO_SPEED);
+        _azimuth_servo.set_target(x_angle, 5);
 
         y_angle = 90; // up
         _display.display_current_positions(subtitle, x_angle, y_angle);
-        _altitude_servo.set_target(y_angle, MAX_SERVO_SPEED);
+        _altitude_servo.set_target(y_angle, 5);
 
         x_angle = 270; // west
         _display.display_current_positions(subtitle, x_angle, y_angle);
-        _azimuth_servo.set_target(x_angle, MAX_SERVO_SPEED);
+        _azimuth_servo.set_target(x_angle, 5);
     }
 }

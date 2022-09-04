@@ -86,6 +86,7 @@ void Display::display_current_positions(String subtitle, float azimuth, float al
     _display.setCursor(altitude_x, 50);
     _display.println(altitude_position);
     _display.display();
+    delay(DELAY_SECOND);
 }
 
 void Display::sleep()

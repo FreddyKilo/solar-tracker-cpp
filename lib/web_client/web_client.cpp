@@ -34,10 +34,12 @@ DynamicJsonDocument WebClient::plot_voltage_level_thingspeak(float voltage_level
     return _get(_thingspeak_domain + path);
 }
 
-DynamicJsonDocument WebClient::plot_voltage_level_aio(float voltage_level, int percentage)
+void WebClient::log_data_aio(float voltage_level, int percentage, float azimuth, float altitude)
 {
     String voltage_level_feed_name = "battery-voltage-level";
     String percentage_feed_name = "battery-percentage";
+    String azimuth_feed_name = "azimuth-angle";
+    String altitude_feed_name = "altitude-angle";
 
     String path = "/api/v2/" + String(AIO_USERNAME) + "/feeds/" + voltage_level_feed_name + "/data?x-aio-key=" + String(AIO_KEY);
     String payload = "{\"value\":" + String(voltage_level) + "}";
@@ -45,7 +47,15 @@ DynamicJsonDocument WebClient::plot_voltage_level_aio(float voltage_level, int p
 
     path = "/api/v2/" + String(AIO_USERNAME) + "/feeds/" + percentage_feed_name + "/data?x-aio-key=" + String(AIO_KEY);
     payload = "{\"value\":" + String(percentage) + "}";
-    return _post(_aio_domain + path, payload);
+    _post(_aio_domain + path, payload);
+
+    path = "/api/v2/" + String(AIO_USERNAME) + "/feeds/" + azimuth_feed_name + "/data?x-aio-key=" + String(AIO_KEY);
+    payload = "{\"value\":" + String(azimuth) + "}";
+    _post(_aio_domain + path, payload);
+
+    path = "/api/v2/" + String(AIO_USERNAME) + "/feeds/" + altitude_feed_name + "/data?x-aio-key=" + String(AIO_KEY);
+    payload = "{\"value\":" + String(altitude) + "}";
+    _post(_aio_domain + path, payload);
 }
 
 DynamicJsonDocument WebClient::_get(String url)

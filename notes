@@ -1,0 +1,16 @@
+Power consumption before optimisation
+Date: Sept 1, 2022
+Time range: 6:59AM - 12:20PM
+Time tracking: 5hrs 21min
+Voltage range: 3.97 - 3.73
+Voltage loss: 0.24v
+
+Power consumption after the following
+* adjust panel positions every 10 mins based on predicted angle (instead of every 5 mins)
+* turn off display between tracking intervals
+* set wifi_set_sleep_type(MODEM_SLEEP_T) 
+Date: Sept 2, 2022
+Time range: 7:05AM - 12:22PM
+Time tracking: 5hrs 17min
+Voltage range: 4.09 - 3.88
+Voltage loss: 0.21v
