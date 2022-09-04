@@ -32,7 +32,7 @@ void PanelServo::set_target(float angle, int speed)
     {
         target = map_altitude_to_microsec(angle);
         if (_microsec == 0)
-            _microsec = map_azimuth_to_microsec(DEFAULT_ALTITUDE_POSITION);
+            _microsec = map_altitude_to_microsec(DEFAULT_ALTITUDE_POSITION);
     }
 
     while (_microsec != target)
