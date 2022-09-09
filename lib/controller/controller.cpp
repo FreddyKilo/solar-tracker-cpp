@@ -83,6 +83,8 @@ void Controller::run(std::uint8_t mode)
     }
     else // after sunset
     {
+        _web_client.log_data_aio(voltage_level, battery_percentage, DEFAULT_AZIMUTH_POSITION, DEFAULT_ALTITUDE_POSITION);
+
         int sleep_seconds = seconds_to_sunrise(current_time, sunrise);
         deep_sleep(sleep_seconds);
     }
@@ -91,13 +93,15 @@ void Controller::run(std::uint8_t mode)
 // Gets an input value from the ADC pin A0 then maps it to a reabable voltage level
 float Controller::read_voltage_level()
 {
-    // need to turn off wifi modem to get a stable and accurate reading from A0, this is a hardware flaw
+    // need to turn off charging circuit and wifi modem to get a stable and accurate reading from A0
+    digitalWrite(D3, HIGH);
     WiFi.forceSleepBegin(0);
     delay(1000);
 
     _display.display_status("Reading voltage level", "", "");
     int reading = analogRead(A0);
 
+    digitalWrite(D3, LOW);
     WiFi.forceSleepWake();
     wait_for_wifi();
 
@@ -108,8 +112,10 @@ float Controller::read_voltage_level()
 
 void Controller::deep_sleep(int sleep_seconds)
 {
-    _display.display_status("Setting default", "position", "Goodnight (-.-) Zzz..");
+    _display.display_status("Setting azimuth", "servo to", "default position");
     _azimuth_servo.set_target(DEFAULT_AZIMUTH_POSITION, MAX_SERVO_SPEED);
+
+    _display.display_status("Setting altitude", "servo to", "default position");
     _altitude_servo.set_target(DEFAULT_ALTITUDE_POSITION, MAX_SERVO_SPEED);
 
     if (sleep_seconds > MAX_DEEP_SLEEP_SECONDS)
@@ -124,6 +130,7 @@ void Controller::deep_sleep(int sleep_seconds)
     _log_message["deepSleepMax"] = ESP.deepSleepMax();
     _web_client.log_info(LOG_NAME_DEEP_SLEEP, _log_message);
 
+    _display.display_status("Until next", "sunrise...", "Goodnight (-.-)");
     _display.sleep();
     ESP.deepSleep(sleep_time);
 }
@@ -173,5 +180,20 @@ void Controller::calibrate_servos()
         x_angle = 270; // west
         _display.display_current_positions(subtitle, x_angle, y_angle);
         _azimuth_servo.set_target(x_angle, 5);
+    }
+}
+
+void Controller::test_charging_shutoff()
+{
+    pinMode(D3, OUTPUT);
+
+    while (true)
+    {
+        Serial.println("turning charge off");
+        digitalWrite(D3, HIGH);
+        delay(4000);
+        Serial.println("turning charge on");
+        digitalWrite(D3, LOW);
+        delay(4000);
     }
 }

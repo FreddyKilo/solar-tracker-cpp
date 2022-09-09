@@ -14,6 +14,7 @@ public:
 
     void connect_to_wifi(void);
     void run(std::uint8_t mode = 0b00000000);
+    void test_charging_shutoff(void);
 
 private:
     WebClient _web_client;

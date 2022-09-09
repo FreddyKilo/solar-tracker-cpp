@@ -12,6 +12,7 @@ Controller controller;
 void setup()
 {
   Serial.begin(9600);
+  pinMode(D3, OUTPUT);
   controller.connect_to_wifi();
 }
 
