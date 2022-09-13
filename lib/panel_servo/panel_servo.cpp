@@ -4,36 +4,31 @@
 
 using namespace constants;
 
-PanelServo::PanelServo(int pinout, int min_microseconds, int max_microseconds)
+PanelServo::PanelServo(int pinout, int min_microseconds, int max_microseconds, int default_position)
 {
     _pinout = pinout;
     _min = min_microseconds;
     _max = max_microseconds;
+    _default_position = default_position;
 }
 
-void PanelServo::set_target(float angle, int speed)
+void PanelServo::init()
 {
-    _servo.attach(_pinout, _min, _max);
+    Serial.println("initializing servo to postition " + String(_default_position));
 
-    if (speed > MAX_SERVO_SPEED)
-        speed = MAX_SERVO_SPEED;
-    if (speed < 1)
-        speed = 1;
+    _microsec = _default_position;
+    _servo.attach(_pinout, _min, _max, _default_position);
+}
 
-    int target = 0;
-    
-    if (_pinout == D5)
+void PanelServo::set_target(int target, int speed)
+{
+    if (target == _microsec)
     {
-        target = map_azimuth_to_microsec(angle);
-        if (_microsec == 0)
-            _microsec = map_azimuth_to_microsec(DEFAULT_AZIMUTH_POSITION);
+        _servo.detach();
+        return;
     }
-    else if (_pinout == D6)
-    {
-        target = map_altitude_to_microsec(angle);
-        if (_microsec == 0)
-            _microsec = map_altitude_to_microsec(DEFAULT_ALTITUDE_POSITION);
-    }
+
+    _servo.attach(_pinout, _min, _max, _microsec);
 
     while (_microsec != target)
     {
@@ -54,14 +49,4 @@ void PanelServo::set_target(float angle, int speed)
 int PanelServo::get_angle()
 {
     return _servo.read();
-}
-
-int PanelServo::map_azimuth_to_microsec(float sun_azimuth)
-{
-    return map_float(sun_azimuth, 60, 300, _max, _min);
-}
-
-int PanelServo::map_altitude_to_microsec(float sun_altitude)
-{
-    return map_float(sun_altitude, 180, 0, _min, _max);
 }

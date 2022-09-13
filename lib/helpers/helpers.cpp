@@ -38,6 +38,16 @@ int voltage_to_percentage(float voltage)
   return map_float(voltage, MIN_BATTERY, MAX_BATTERY, 0, 100);
 }
 
+int map_azimuth_to_microsec(float sun_azimuth)
+{
+    return map_float(sun_azimuth, 60, 300, AZIMUTH_SERVO_MAX_MICROSEC, AZIMUTH_SERVO_MIN_MICROSEC);
+}
+
+int map_altitude_to_microsec(float sun_altitude)
+{
+    return map_float(sun_altitude, 0, 180, ALTITUDE_SERVO_MAX_MICROSEC, ALTITUDE_SERVO_MIN_MICROSEC);
+}
+
 float map_float(float input, float in_min, float in_max, float out_min, float out_max)
 {
   return (input - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;

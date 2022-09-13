@@ -12,6 +12,7 @@ class Controller
 public:
     Controller(void);
 
+    void init(void);
     void connect_to_wifi(void);
     void run(std::uint8_t mode = 0b00000000);
     void test_charging_shutoff(void);

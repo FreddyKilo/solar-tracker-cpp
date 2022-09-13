@@ -12,20 +12,27 @@ using namespace constants;
 
 Controller::Controller()
     : _astronomy_data(1024),
-      _azimuth_servo(D5, AZIMUTH_SERVO_MIN_MICROSEC, AZIMUTH_SERVO_MAX_MICROSEC),
-      _altitude_servo(D6, ALTITUDE_SERVO_MIN_MICROSEC, ALTITUDE_SERVO_MAX_MICROSEC),
+      _azimuth_servo(D5, AZIMUTH_SERVO_MIN_MICROSEC, AZIMUTH_SERVO_MAX_MICROSEC, DEFAULT_AZIMUTH_POSITION),
+      _altitude_servo(D6, ALTITUDE_SERVO_MIN_MICROSEC, ALTITUDE_SERVO_MAX_MICROSEC, DEFAULT_ALTITUDE_POSITION),
       _log_message(512)
 {
     WebClient _web_client;
+}
+
+void Controller::init()
+{
+    _azimuth_servo.init();
+    _altitude_servo.init();
+    delay(1000);
+
     _display.init();
+    pinMode(D3, OUTPUT);
 }
 
 void Controller::connect_to_wifi()
 {
     WiFi.mode(WIFI_STA);
     WiFi.begin(NETWORK_SSID, NETWORK_PASS);
-
-    _display.display_status("", "Connecting to WiFi", "");
     wait_for_wifi();
 
     wifi_set_sleep_type(MODEM_SLEEP_T);
@@ -71,10 +78,10 @@ void Controller::run(std::uint8_t mode)
         _prev_altitude = _sun_altitude;
 
         _display.display_status("Setting azimuth", "servo", "");
-        _azimuth_servo.set_target(leading_azimuth_target, 5);
+        _azimuth_servo.set_target(map_azimuth_to_microsec(leading_azimuth_target), 5);
 
         _display.display_status("Setting altitude", "servo", "");
-        _altitude_servo.set_target(leading_altitude_target, 5);
+        _altitude_servo.set_target(map_altitude_to_microsec(leading_altitude_target), 5);
 
         _web_client.log_data_aio(voltage_level, battery_percentage, leading_azimuth_target, leading_altitude_target);
 
@@ -125,9 +132,6 @@ void Controller::deep_sleep(int sleep_seconds)
 
     uint64_t sleep_time = sleep_seconds * ADJUSTED_DEEP_SLEEP_SECOND;
     _log_message["sleepMinutes"] = sleep_seconds / 60;
-    _log_message["sleepSeconds"] = sleep_seconds;
-    _log_message["adjustedSleepSeconds"] = sleep_time / DEEP_SLEEP_SECOND;
-    _log_message["deepSleepMax"] = ESP.deepSleepMax();
     _web_client.log_info(LOG_NAME_DEEP_SLEEP, _log_message);
 
     _display.display_status("Until next", "sunrise...", "Goodnight (-.-)");
@@ -167,19 +171,19 @@ void Controller::calibrate_servos()
     {
         y_angle = 0; // to horizon
         _display.display_current_positions(subtitle, x_angle, y_angle);
-        _altitude_servo.set_target(y_angle, 5);
+        _altitude_servo.set_target(map_altitude_to_microsec(y_angle), 5);
 
         x_angle = 90; // east
         _display.display_current_positions(subtitle, x_angle, y_angle);
-        _azimuth_servo.set_target(x_angle, 5);
+        _azimuth_servo.set_target(map_azimuth_to_microsec(x_angle), 5);
 
         y_angle = 90; // up
         _display.display_current_positions(subtitle, x_angle, y_angle);
-        _altitude_servo.set_target(y_angle, 5);
+        _altitude_servo.set_target(map_altitude_to_microsec(y_angle), 5);
 
         x_angle = 270; // west
         _display.display_current_positions(subtitle, x_angle, y_angle);
-        _azimuth_servo.set_target(x_angle, 5);
+        _azimuth_servo.set_target(map_azimuth_to_microsec(x_angle), 5);
     }
 }
 

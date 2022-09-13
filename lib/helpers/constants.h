@@ -15,8 +15,8 @@ namespace constants {
     constexpr int AZIMUTH_SERVO_MAX_MICROSEC = 2250;
     constexpr int ALTITUDE_SERVO_MIN_MICROSEC = 425;
     constexpr int ALTITUDE_SERVO_MAX_MICROSEC = 2370;
-    constexpr int DEFAULT_AZIMUTH_POSITION = 180;
-    constexpr int DEFAULT_ALTITUDE_POSITION = 0;
+    constexpr int DEFAULT_AZIMUTH_POSITION = 1402;
+    constexpr int DEFAULT_ALTITUDE_POSITION = 1397;
     constexpr int MAX_SERVO_SPEED = 10;
 
     constexpr auto LOG_NAME_RUNNING = "tracker-v2-running";

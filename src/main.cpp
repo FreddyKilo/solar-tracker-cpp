@@ -12,12 +12,12 @@ Controller controller;
 void setup()
 {
   Serial.begin(9600);
-  pinMode(D3, OUTPUT);
+  controller.init();
   controller.connect_to_wifi();
 }
 
 void loop()
 {
-  led.blink_many(3, 120);
+  led.blink_many(3, 200);
   controller.run();
 }
