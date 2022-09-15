@@ -21,12 +21,13 @@ Controller::Controller()
 
 void Controller::init()
 {
+    pinMode(D3, OUTPUT);
+
     _azimuth_servo.init();
     _altitude_servo.init();
     delay(1000);
 
     _display.init();
-    pinMode(D3, OUTPUT);
 }
 
 void Controller::connect_to_wifi()
@@ -48,7 +49,6 @@ void Controller::run(std::uint8_t mode)
 
     float voltage_level = read_voltage_level();
     int battery_percentage = voltage_to_percentage(voltage_level);
-    _display.display_status("Voltage level", String(voltage_level) + "v", "");
 
     _display.display_status("Getting astronomy", "data", "");
     _astronomy_data = _web_client.get_astronomy_data();
@@ -77,10 +77,7 @@ void Controller::run(std::uint8_t mode)
         _prev_azimuth = _sun_azimuth;
         _prev_altitude = _sun_altitude;
 
-        _display.display_status("Setting azimuth", "servo", "");
         _azimuth_servo.set_target(map_azimuth_to_microsec(leading_azimuth_target), 5);
-
-        _display.display_status("Setting altitude", "servo", "");
         _altitude_servo.set_target(map_altitude_to_microsec(leading_altitude_target), 5);
 
         _web_client.log_data_aio(voltage_level, battery_percentage, leading_azimuth_target, leading_altitude_target);
@@ -90,7 +87,7 @@ void Controller::run(std::uint8_t mode)
     }
     else // after sunset
     {
-        _web_client.log_data_aio(voltage_level, battery_percentage, DEFAULT_AZIMUTH_POSITION, DEFAULT_ALTITUDE_POSITION);
+        _web_client.log_data_aio(voltage_level, battery_percentage, 180, 90);
 
         int sleep_seconds = seconds_to_sunrise(current_time, sunrise);
         deep_sleep(sleep_seconds);
@@ -100,13 +97,22 @@ void Controller::run(std::uint8_t mode)
 // Gets an input value from the ADC pin A0 then maps it to a reabable voltage level
 float Controller::read_voltage_level()
 {
+    _display.display_status("Reading voltage level", "", "");
+
     // need to turn off charging circuit and wifi modem to get a stable and accurate reading from A0
     digitalWrite(D3, HIGH);
     WiFi.forceSleepBegin(0);
     delay(1000);
 
-    _display.display_status("Reading voltage level", "", "");
-    int reading = analogRead(A0);
+    int sum = 0;
+    int reading_count = 8;
+    for (int i = 0; i < reading_count; i++)
+    {
+        sum += analogRead(A0);
+        delay(50);
+    }
+
+    int reading = sum / reading_count;
 
     digitalWrite(D3, LOW);
     WiFi.forceSleepWake();
@@ -119,10 +125,10 @@ float Controller::read_voltage_level()
 
 void Controller::deep_sleep(int sleep_seconds)
 {
-    _display.display_status("Setting azimuth", "servo to", "default position");
-    _azimuth_servo.set_target(DEFAULT_AZIMUTH_POSITION, MAX_SERVO_SPEED);
+    _display.display_status("Until next", "sunrise...", "Goodnight (-.-)");
+    delay(1000);
 
-    _display.display_status("Setting altitude", "servo to", "default position");
+    _azimuth_servo.set_target(DEFAULT_AZIMUTH_POSITION, MAX_SERVO_SPEED);
     _altitude_servo.set_target(DEFAULT_ALTITUDE_POSITION, MAX_SERVO_SPEED);
 
     if (sleep_seconds > MAX_DEEP_SLEEP_SECONDS)
@@ -134,7 +140,6 @@ void Controller::deep_sleep(int sleep_seconds)
     _log_message["sleepMinutes"] = sleep_seconds / 60;
     _web_client.log_info(LOG_NAME_DEEP_SLEEP, _log_message);
 
-    _display.display_status("Until next", "sunrise...", "Goodnight (-.-)");
     _display.sleep();
     ESP.deepSleep(sleep_time);
 }

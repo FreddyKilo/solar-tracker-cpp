@@ -52,7 +52,6 @@ void Display::display_status(String line_1, String line_2, String line_3)
     _display.setCursor(cursor_x_3, 44);
     _display.println(line_3);
     _display.display();
-    delay(DELAY_SECOND);
 }
 
 void Display::display_current_positions(String subtitle, float azimuth, float altitude)
@@ -86,7 +85,6 @@ void Display::display_current_positions(String subtitle, float azimuth, float al
     _display.setCursor(altitude_x, 50);
     _display.println(altitude_position);
     _display.display();
-    delay(DELAY_SECOND);
 }
 
 void Display::sleep()
