@@ -9,7 +9,8 @@ namespace constants {
     constexpr int TRACKING_DELAY = 10 * DELAY_MINUTE;
     constexpr int SECONDS_IN_DAY = 86400;
     constexpr int MAX_DEEP_SLEEP_SECONDS = 10800; // any more than this (3 hours) risks the device never waking, this is a hardware limitation that needs a workaround
-
+    constexpr int GOLDEN_HOUR = 3600;
+    
     // servo calibration params
     constexpr int AZIMUTH_SERVO_MIN_MICROSEC = 555;
     constexpr int AZIMUTH_SERVO_MAX_MICROSEC = 2250;

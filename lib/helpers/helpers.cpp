@@ -12,16 +12,16 @@ int time_to_seconds(std::string time)
   return (hours * 60 + minutes) * 60;
 }
 
-int seconds_to_sunrise(int current_time, int sunrise)
+int time_until_start(int current_time, int start_time)
 {
-  if (current_time > sunrise)
+  if (current_time > start_time)
   {
     int to_midnight = SECONDS_IN_DAY - current_time;
-    return to_midnight + sunrise;
+    return to_midnight + start_time;
   }
   else
   {
-    return sunrise - current_time;
+    return start_time - current_time;
   }
 }
 

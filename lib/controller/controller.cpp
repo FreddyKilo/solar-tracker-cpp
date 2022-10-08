@@ -56,15 +56,15 @@ void Controller::run(std::uint8_t mode)
     _sun_altitude = _astronomy_data["sun_altitude"];
 
     _log_message["created"] = to_readable_time(_astronomy_data["current_time"]);
-    _log_message["currentAzimuth"] = _sun_azimuth;
-    _log_message["currentAltitude"] = _sun_altitude;
     _log_message["batteryVoltage"] = voltage_level;
+    _log_message["sunAzimuth"] = _sun_azimuth;
+    _log_message["sunAltitude"] = _sun_altitude;
 
     int current_time = time_to_seconds(_astronomy_data["current_time"]);
-    int sunrise = time_to_seconds(_astronomy_data["sunrise"]);
-    int sunset = time_to_seconds(_astronomy_data["sunset"]);
+    int start_time = time_to_seconds(_astronomy_data["sunrise"]) + GOLDEN_HOUR;
+    int end_time = time_to_seconds(_astronomy_data["sunset"]) - GOLDEN_HOUR;
 
-    if (sunrise <= current_time and current_time <= sunset)
+    if (current_time >= start_time and current_time < end_time)
     {
         Serial.println("previous_azimuth" + String(_prev_azimuth));
         if (_prev_azimuth == 0)
@@ -72,24 +72,27 @@ void Controller::run(std::uint8_t mode)
         if (_prev_altitude == 0)
             _prev_altitude = _sun_altitude;
 
-        float leading_azimuth_target = 2 * _sun_azimuth - _prev_azimuth;
-        float leading_altitude_target = 2 * _sun_altitude - _prev_altitude;
+        float leading_azimuth_target = _sun_azimuth + (_sun_azimuth - _prev_azimuth) / 2;
+        float leading_altitude_target = _sun_altitude + (_sun_altitude - _prev_altitude) / 2;
         _prev_azimuth = _sun_azimuth;
         _prev_altitude = _sun_altitude;
 
         _azimuth_servo.set_target(map_azimuth_to_microsec(leading_azimuth_target), 5);
         _altitude_servo.set_target(map_altitude_to_microsec(leading_altitude_target), 5);
 
+        _log_message["panelAzimuth"] = leading_azimuth_target;
+        _log_message["panelAltitude"] = leading_altitude_target;
+        _web_client.log_info(LOG_NAME_RUNNING, _log_message);
         _web_client.log_data_aio(voltage_level, battery_percentage, leading_azimuth_target, leading_altitude_target);
 
         _display.display_current_positions("Current Position", leading_azimuth_target, leading_altitude_target);
         delay(TRACKING_DELAY);
     }
-    else // after sunset
+    else // outside of tracking window
     {
         _web_client.log_data_aio(voltage_level, battery_percentage, 180, 90);
 
-        int sleep_seconds = seconds_to_sunrise(current_time, sunrise);
+        int sleep_seconds = time_until_start(current_time, start_time);
         deep_sleep(sleep_seconds);
     }
 }
@@ -125,16 +128,16 @@ float Controller::read_voltage_level()
 
 void Controller::deep_sleep(int sleep_seconds)
 {
-    _display.display_status("Until next", "sunrise...", "Goodnight (-.-)");
-    delay(1000);
-
     _azimuth_servo.set_target(DEFAULT_AZIMUTH_POSITION, MAX_SERVO_SPEED);
     _altitude_servo.set_target(DEFAULT_ALTITUDE_POSITION, MAX_SERVO_SPEED);
+
+    _display.display_status("Until next", "sunrise...", "Goodnight (-.-)");
+    delay(1000);
 
     if (sleep_seconds > MAX_DEEP_SLEEP_SECONDS)
         sleep_seconds = MAX_DEEP_SLEEP_SECONDS;
     else
-        sleep_seconds += 300; // give a 5 min buffer due to astronomy API inaccuracies
+        sleep_seconds += 300; // give a 5 min buffer due to inconsistent Wemos clock
 
     uint64_t sleep_time = sleep_seconds * ADJUSTED_DEEP_SLEEP_SECOND;
     _log_message["sleepMinutes"] = sleep_seconds / 60;
