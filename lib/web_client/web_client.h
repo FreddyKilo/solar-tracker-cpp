@@ -3,7 +3,7 @@
 
 #include <Arduino.h>
 #include <ESP8266HTTPClient.h>
-#include <WiFiClient.h>
+#include <WiFiClientSecureBearSSL.h>
 #include <ArduinoJson.h>
 
 class WebClient
@@ -18,7 +18,6 @@ public:
     void log_data_aio(float voltage_level, int percentage, float azimuth, float altitude);
 
 private:
-    WiFiClient _wifi_client;
     HTTPClient _http_client;
     String _ip_geolocation_domain;
     String _dweet_domain;

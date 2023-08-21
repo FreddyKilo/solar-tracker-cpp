@@ -5,15 +5,15 @@ using namespace std;
 
 WebClient::WebClient() : _json_response(1024)
 {
-    _ip_geolocation_domain = "http://api.ipgeolocation.io";
-    _dweet_domain = "http://dweet.io";
+    _ip_geolocation_domain = "https://api.ipgeolocation.io";
+    _dweet_domain = "https://dweet.io";
     _thingspeak_domain = "http://api.thingspeak.com";
-    _aio_domain = "http://io.adafruit.com";
+    _aio_domain = "https://io.adafruit.com";
 }
 
 DynamicJsonDocument WebClient::get_astronomy_data()
 {
-    String path = "/astronomy?apiKey=" + String(IP_GEOLOCATION_API_KEY);
+    String path = "/astronomy?apiKey=" + String(IP_GEOLOCATION_API_KEY) + "&location=" + String(LOCATION);
     return _get(_ip_geolocation_domain + path);
 }
 
@@ -60,17 +60,21 @@ void WebClient::log_data_aio(float voltage_level, int percentage, float azimuth,
 
 DynamicJsonDocument WebClient::_get(String url)
 {
-    HTTPClient http_client;
-    http_client.begin(_wifi_client, url);
-    int response_code = http_client.GET();
+    std::unique_ptr<BearSSL::WiFiClientSecure> wifi_client(new BearSSL::WiFiClientSecure);
+    wifi_client->setInsecure();
+
+    _http_client.begin(*wifi_client, url);
+    int response_code = _http_client.GET();
+
+    String response = _http_client.getString();
+    Serial.println("response from " + url + ": " + response);
 
     if (response_code == HTTP_CODE_OK)
     {
-        String response = http_client.getString();
         deserializeJson(_json_response, response);
     }
 
-    http_client.end();
+    _http_client.end();
 
     _json_response["code"] = response_code;
     return _json_response;
@@ -78,18 +82,22 @@ DynamicJsonDocument WebClient::_get(String url)
 
 DynamicJsonDocument WebClient::_post(String url, String payload)
 {
-    HTTPClient http_client;
-    http_client.begin(_wifi_client, url);
-    http_client.addHeader("Content-Type", "application/json");
-    int response_code = http_client.POST(payload);
+    std::unique_ptr<BearSSL::WiFiClientSecure> wifi_client(new BearSSL::WiFiClientSecure);
+    wifi_client->setInsecure();
+
+    _http_client.begin(*wifi_client, url);
+    _http_client.addHeader("Content-Type", "application/json");
+    int response_code = _http_client.POST(payload);
+
+    String response = _http_client.getString();
+    Serial.println("response from " + url + ": " + response);
 
     if (response_code == HTTP_CODE_OK)
     {
-        String response = http_client.getString();
         deserializeJson(_json_response, response);
     }
 
-    http_client.end();
+    _http_client.end();
 
     _json_response["code"] = response_code;
     return _json_response;
